@@ -19,8 +19,7 @@ template<> struct BinaryOperation<BinaryOperationType::Add>
 {
 	static constexpr auto precedence = 2u;
 
-	template<class X, class Y>
-	static inline constexpr auto calculate(const X& x, const Y& y) -> decltype(x + y) {
+	static inline constexpr double calculate(double x, double  y) {
 		return x + y;
 	}
 
@@ -50,8 +49,7 @@ template<> struct BinaryOperation<BinaryOperationType::Sub>
 {
 	static constexpr auto precedence = 2u;
 
-	template<class X, class Y>
-	static inline constexpr auto calculate(const X& x, const Y& y) -> decltype(x - y) {
+	static inline constexpr double calculate(double x, double  y) {
 		return x - y;
 	}
 
@@ -81,8 +79,7 @@ template<> struct BinaryOperation<BinaryOperationType::Mul>
 {
 	static constexpr auto precedence = 1u;
 
-	template<class X, class Y>
-	static inline constexpr auto calculate(const X& x, const Y& y) -> decltype(x * y) {
+	static inline constexpr double calculate(double x, double  y) {
 		return x * y;
 	}
 
@@ -116,8 +113,7 @@ template<> struct BinaryOperation<BinaryOperationType::Div>
 {
 	static constexpr auto precedence = 0u;
 
-	template<class X, class Y>
-	static inline constexpr auto calculate(const X& x, const Y& y) -> decltype(x / y) {
+	static inline constexpr double calculate(double x, double  y) {
 		return x / y;
 	}
 

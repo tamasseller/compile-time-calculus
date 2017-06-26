@@ -68,6 +68,15 @@ struct derivate<BinaryOperationExpression<X, Y, BinaryOperation<BinaryOperationT
 	}
 };
 
+template<class X, class Desc>
+struct derivate<FunctionExpression<X, Desc>> {
+	template<char n>
+	static auto d(const FunctionExpression<X, Desc>& f, const Variable<n>& x) ->
+			typename std::decay<decltype(Desc::Derivative::construct(f.x) * derivate<X>::d(f.x, x))>::type {
+		return Desc::Derivative::construct(f.x) * derivate<X>::d(f.x, x);
+	}
+};
+
 template<class F>
 class LeibnizWrapper {
 	template<class>
