@@ -29,9 +29,25 @@ template<> struct BinOp<BinOpType::Add> {
 		return x + y;
 	}
 
-	template<class X, class Y>
+	template<class X, class Y, class = typename std::enable_if<!X::isConst && !Y::isConst>::type>
 	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
 		return x.print(precedence) + "+" + y.print(precedence);
+	}
+
+	template<class X, class Y, class = typename std::enable_if<X::isConst>::type, class=void>
+	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
+		if(x.content == 0.0)
+			return y.print(precedence);
+		else
+			return y.print(precedence) + "+" + x.print(precedence);
+	}
+
+	template<class X, class Y, class = typename std::enable_if<Y::isConst>::type, class=void, class=void>
+	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
+		if(y.content == 0.0)
+			return x.print(precedence);
+		else
+			return x.print(precedence) + "+" + y.print(precedence);
 	}
 };
 
@@ -41,6 +57,27 @@ template<> struct BinOp<BinOpType::Sub> {
 	template<class X, class Y>
 	static inline constexpr auto calculate(const X& x, const Y& y) -> decltype(x - y) {
 		return x - y;
+	}
+
+	template<class X, class Y, class = typename std::enable_if<!X::isConst && !Y::isConst>::type>
+	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
+		return x.print(precedence) + "-" + y.print(precedence);
+	}
+
+	template<class X, class Y, class = typename std::enable_if<X::isConst>::type, class=void>
+	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
+		if(x.content == 0.0)
+			return "-" + y.print(precedence);
+		else
+			return x.print(precedence) + "-" + y.print(precedence);
+	}
+
+	template<class X, class Y, class = typename std::enable_if<Y::isConst>::type, class=void, class=void>
+	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
+		if(y.content == 0.0)
+			return x.print(precedence);
+		else
+			return x.print(precedence) + "-" + y.print(precedence);
 	}
 };
 
@@ -62,14 +99,20 @@ public:
 	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
 		if(x.content == 0.0)
 			return "0";
-		return x.print(precedence) + "*" + y.print(precedence);
+		else if(x.content == 1.0)
+			return y.print(precedence);
+		else
+			return x.print(precedence) + "*" + y.print(precedence);
 	}
 
 	template<class X, class Y, class = typename std::enable_if<Y::isConst>::type, class=void, class=void>
 	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
 		if(y.content == 0.0)
 			return "0";
-		return x.print(precedence) + "*" + y.print(precedence);
+		else if(y.content == 1.0)
+			return x.print(precedence);
+		else
+			return y.print(precedence) + "*" + x.print(precedence);
 	}
 };
 
@@ -79,6 +122,27 @@ template<> struct BinOp<BinOpType::Div> {
 	template<class X, class Y>
 	static inline constexpr auto calculate(const X& x, const Y& y) -> decltype(x / y) {
 		return x / y;
+	}
+
+	template<class X, class Y, class = typename std::enable_if<!X::isConst && !Y::isConst>::type>
+	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
+		return x.print(precedence) + "/" + y.print(precedence);
+	}
+
+	template<class X, class Y, class = typename std::enable_if<X::isConst>::type, class=void>
+	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
+		if(x.content == 0.0)
+			return "0";
+		else
+			return x.print(precedence) + "/" + y.print(precedence);
+	}
+
+	template<class X, class Y, class = typename std::enable_if<Y::isConst>::type, class=void, class=void>
+	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
+		if(y.content == 1.0)
+			return x.print(precedence);
+		else
+			return x.print(precedence) + "/" + y.print(precedence);
 	}
 };
 
@@ -231,7 +295,6 @@ template<char n> struct derivate<Var<n>> {
 	static Const d(const Var<n>&, const Var<n>&) {
 		return 1.0;
 	}
-
 };
 
 template<> struct derivate<Const> {
@@ -251,11 +314,29 @@ struct derivate<BinOpExpr<X, Y, BinOp<BinOpType::Add>>> {
 };
 
 template<class X, class Y>
+struct derivate<BinOpExpr<X, Y, BinOp<BinOpType::Sub>>> {
+	template<char n>
+	static auto d(const BinOpExpr<X, Y, BinOp<BinOpType::Sub>>& f, const Var<n>& x) ->
+			typename std::decay<decltype(derivate<X>::d(f.x, x) - derivate<Y>::d(f.y, x))>::type {
+		return derivate<X>::d(f.x, x) - derivate<Y>::d(f.y, x);
+	}
+};
+
+template<class X, class Y>
 struct derivate<BinOpExpr<X, Y, BinOp<BinOpType::Mul>>> {
 	template<char n>
 	static auto d(const BinOpExpr<X, Y, BinOp<BinOpType::Mul>>& f, const Var<n>& x) ->
 			typename std::decay<decltype(f.y * derivate<X>::d(f.x, x) + f.x * derivate<Y>::d(f.y, x))>::type {
 		return f.y * derivate<X>::d(f.x, x) + f.x * derivate<Y>::d(f.y, x);
+	}
+};
+
+template<class X, class Y>
+struct derivate<BinOpExpr<X, Y, BinOp<BinOpType::Div>>> {
+	template<char n>
+	static auto d(const BinOpExpr<X, Y, BinOp<BinOpType::Div>>& f, const Var<n>& x) ->
+			typename std::decay<decltype((f.y * derivate<X>::d(f.x, x) - f.x * derivate<Y>::d(f.y, x)) / (f.y * f.y))>::type {
+		return (f.y * derivate<X>::d(f.x, x) - f.x * derivate<Y>::d(f.y, x)) / (f.y * f.y);
 	}
 };
 
@@ -267,7 +348,7 @@ int main()
     x = 3;
     y = 4;
 
-    auto v = x * x + Const(2.0) * x * y + y * y;
+    auto v = x / (x + 1.0);
     auto dv_dx = derivate<decltype(v)>::d(v, x);
 
     std::cout << dv_dx.value() << std::endl;
