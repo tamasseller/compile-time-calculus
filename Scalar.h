@@ -16,40 +16,53 @@ class Constant;
 
 template<class Child>
 struct Operators {
+	inline BinaryOperationExpression<Constant, Child, BinaryOperation<BinaryOperationType::Sub>> operator -() const {
+		return BinaryOperationExpression<Constant, Child, BinaryOperation<BinaryOperationType::Sub>>(0, *static_cast<const Child*>(this));
+	}
+
 	template<class Other>
-	BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Add>> operator +(const Other& other) const {
+	inline BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Add>> operator +(const Other& other) const {
 		return BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Add>>(*static_cast<const Child*>(this), other);
 	}
 
 	template<class Other>
-	BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Sub>> operator -(const Other& other) const {
+	inline BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Sub>> operator -(const Other& other) const {
 		return BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Sub>>(*static_cast<const Child*>(this), other);
 	}
 
 	template<class Other>
-	BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Mul>> operator *(const Other& other) const {
+	inline BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Mul>> operator *(const Other& other) const {
 		return BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Mul>>(*static_cast<const Child*>(this), other);
 	}
 
 	template<class Other>
-	BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Div>> operator /(const Other& other) const {
+	inline BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Div>> operator /(const Other& other) const {
 		return BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Div>>(*static_cast<const Child*>(this), other);
 	}
 
-	BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Add>> operator +(const double& other) const {
+	template<class Other>
+	inline BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Exp>> operator ^(const Other& other) const {
+		return BinaryOperationExpression<Child, Other, BinaryOperation<BinaryOperationType::Exp>>(*static_cast<const Child*>(this), other);
+	}
+
+	inline BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Add>> operator +(const double& other) const {
 		return BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Add>>(*static_cast<const Child*>(this), other);
 	}
 
-	BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Sub>> operator -(const double& other) const {
+	inline BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Sub>> operator -(const double& other) const {
 		return BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Sub>>(*static_cast<const Child*>(this), other);
 	}
 
-	BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Mul>> operator *(const double& other) const {
+	inline BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Mul>> operator *(const double& other) const {
 		return BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Mul>>(*static_cast<const Child*>(this), other);
 	}
 
-	BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Div>> operator /(const double& other) const {
+	inline BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Div>> operator /(const double& other) const {
 		return BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Div>>(*static_cast<const Child*>(this), other);
+	}
+
+	inline BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Exp>> operator ^(const double& other) const {
+		return BinaryOperationExpression<Child, Constant, BinaryOperation<BinaryOperationType::Exp>>(*static_cast<const Child*>(this), other);
 	}
 };
 
@@ -61,40 +74,41 @@ public:
 	static constexpr auto precedence = 0u;
 	typedef const Constant Handle;
 
-	double value() const {return content;}
-	Constant(double content): content(content){};
+	__attribute__((always_inline))
+	inline double value() const {return content;}
+	inline Constant(double content): content(content){};
 
-	std::string print(unsigned int=0) const {return std::to_string(content);}
+	inline std::string print(unsigned int=0) const {return std::to_string(content);}
 
-	Constant operator +(const Constant& other) const {
+	inline Constant operator +(const Constant& other) const {
 		return content + other.content;
 	}
 
-	Constant operator -(const Constant& other) const {
+	inline Constant operator -(const Constant& other) const {
 		return content - other.content;
 	}
 
-	Constant operator *(const Constant& other) const {
+	inline Constant operator *(const Constant& other) const {
 		return content * other.content;
 	}
 
-	Constant operator /(const Constant& other) const {
+	inline Constant operator /(const Constant& other) const {
 		return content / other.content;
 	}
 
-	Constant operator +(const double& other) const {
+	inline Constant operator +(const double& other) const {
 		return content + other;
 	}
 
-	Constant operator -(const double& other) const {
+	inline Constant operator -(const double& other) const {
 		return content - other;
 	}
 
-	Constant operator *(const double& other) const {
+	inline Constant operator *(const double& other) const {
 		return content * other;
 	}
 
-	Constant operator /(const double& other) const {
+	inline Constant operator /(const double& other) const {
 		return content / other;
 	}
 
@@ -112,14 +126,15 @@ public:
 	static constexpr auto precedence = 0u;
 	typedef const Variable& Handle;
 
-	double value() const {return content;}
+	__attribute__((always_inline))
+	inline double value() const {return content;}
 
 	inline Variable& operator =(const double& v) {
 		content = v;
 		return *this;
 	}
 
-	std::string print(unsigned int=0) const {return std::string(1, n);}
+	inline std::string print(unsigned int=0) const {return std::string(1, n);}
 };
 
 #endif /* SCALAR_H_ */

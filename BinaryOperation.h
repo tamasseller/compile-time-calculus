@@ -8,9 +8,11 @@
 #ifndef BINARYOPERATION_H_
 #define BINARYOPERATION_H_
 
+#include "math.h"
+
 enum class BinaryOperationType
 {
-	Add, Sub, Mul, Div
+	Add, Sub, Mul, Div, Exp
 };
 
 template<BinaryOperationType op> struct BinaryOperation;
@@ -136,6 +138,20 @@ template<> struct BinaryOperation<BinaryOperationType::Div>
 			return x.print(precedence);
 		else
 			return x.print(precedence) + "/" + y.print(precedence);
+	}
+};
+
+template<> struct BinaryOperation<BinaryOperationType::Exp>
+{
+	static constexpr auto precedence = 0u;
+
+	static inline constexpr double calculate(double x, double  y) {
+		return pow(x, y);
+	}
+
+	template<class X, class Y>
+	static inline constexpr std::string print(const X& x, const Y& y, int precedence) {
+		return x.print(precedence) + "^" + y.print(precedence);
 	}
 };
 

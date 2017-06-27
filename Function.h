@@ -62,28 +62,65 @@ class ArcusTangentFunction {
 		return atan(x);
 	}
 };
+
+class NaturalLogarithmFunction {
+	template<class, class> friend class ::FunctionExpression;
+	template<class F> friend struct detail::derivate;
+	class Derivative;
+
+	static constexpr const char* name = "ln";
+
+	static inline constexpr double calculate(double x) {
+		return log(x);
+	}
+};
+
 }
 
 template<class X>
-FunctionExpression<X, detail::SineFunction> sine(const X& x) {
+inline FunctionExpression<X, detail::SineFunction> sine(const X& x) {
 	return x;
+}
+
+inline Constant sine(const Constant& c) {
+	return sin(c.value());
 }
 
 template<class X>
-FunctionExpression<X, detail::CosineFunction> cosine(const X& x) {
+inline FunctionExpression<X, detail::CosineFunction> cosine(const X& x) {
 	return x;
+}
+
+inline Constant cosine(const Constant& c) {
+	return cos(c.value());
 }
 
 template<class X>
-FunctionExpression<X, detail::TangentFunction> tangent(const X& x) {
+inline FunctionExpression<X, detail::TangentFunction> tangent(const X& x) {
 	return x;
+}
+
+inline Constant tangent(const Constant& c) {
+	return tan(c.value());
 }
 
 template<class X>
-FunctionExpression<X, detail::ArcusTangentFunction> arcusTangent(const X& x) {
+inline FunctionExpression<X, detail::ArcusTangentFunction> arcusTangent(const X& x) {
 	return x;
 }
 
+inline Constant arcusTangent(const Constant& c) {
+	return atan(c.value());
+}
+
+template<class X>
+inline FunctionExpression<X, detail::NaturalLogarithmFunction> logarithm(const X& x) {
+	return x;
+}
+
+inline Constant logarithm(const Constant& c) {
+	return log(c.value());
+}
 
 struct detail::SineFunction::Derivative {
 	template<class X>
@@ -116,5 +153,14 @@ struct detail::ArcusTangentFunction::Derivative {
 		return Constant(1)/(x*x+Constant(1));
 	}
 };
+
+struct detail::NaturalLogarithmFunction::Derivative {
+	template<class X>
+	static inline auto construct(const X& x)
+	-> decltype(Constant(1)/x) {
+		return Constant(1)/x;
+	}
+};
+
 
 #endif /* FUNCTION_H_ */

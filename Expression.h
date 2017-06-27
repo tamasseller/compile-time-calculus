@@ -18,7 +18,7 @@ template<class F> struct derivate;
 
 template<class Child>
 struct ExpressionBase: public Operators<Child> {
-	std::string print(unsigned int precedence=-1u) const
+	inline std::string print(unsigned int precedence=-1u) const
 	{
 		std::string ret = static_cast<const Child*>(this)->printValue();
 
@@ -37,7 +37,7 @@ protected:
 	typename Y::Handle y;
 
 	friend class BinaryOperationExpression::ExpressionBase;
-	std::string printValue() const {
+	inline std::string printValue() const {
 		return Op::print(x, y, this->precedence);
 	}
 
@@ -45,12 +45,12 @@ public:
 	static constexpr bool isConst = false;
 
 	typedef const BinaryOperationExpression Handle;
-		static constexpr auto precedence = Op::precedence;
+	static constexpr auto precedence = Op::precedence;
 
-		inline BinaryOperationExpression(const X &x, const Y &y): x(x), y(y) {}
+	inline BinaryOperationExpression(const X &x, const Y &y): x(x), y(y) {}
 
-
-		double value() const {return Op::calculate(this->x.value(), this->y.value());}
+	__attribute__((always_inline))
+	inline double value() const {return Op::calculate(this->x.value(), this->y.value());}
 };
 
 template<class X, class Description>
@@ -62,19 +62,20 @@ protected:
 	typename X::Handle x;
 
 	friend class FunctionExpression::ExpressionBase;
-	std::string printValue() const {
+	inline std::string printValue() const {
 		return std::string(desc::name) + "(" + x.print(-1u) + ")";
 	}
 
 public:
 	typedef const FunctionExpression Handle;
-	static constexpr bool isConst = X::isConst;
+	static constexpr bool isConst = false;
 
 	static constexpr auto precedence = 0;
 
 	inline FunctionExpression(const X &x): x(x) {}
 
-	double value() const {return desc::calculate(this->x.value());}
+	__attribute__((always_inline))
+	inline double value() const {return desc::calculate(this->x.value());}
 };
 
 
