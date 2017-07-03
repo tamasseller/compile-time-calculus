@@ -10,6 +10,8 @@
 
 #include "Expression.h"
 
+#include <string>
+
 template<char n>
 class Variable;
 class Constant;

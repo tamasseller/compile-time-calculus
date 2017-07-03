@@ -10,6 +10,8 @@
 
 #include "math.h"
 
+#include <string>
+
 enum class BinaryOperationType
 {
 	Add, Sub, Mul, Div, Exp
