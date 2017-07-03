@@ -18,6 +18,7 @@ namespace detail {
 class SineFunction {
 	template<class, class> friend class ::FunctionExpression;
 	template<class F> friend struct detail::derivate;
+	template<class T> friend struct detail::ContentPrinter;
 	struct Derivative;
 
 	static constexpr const char* name = "sin";
@@ -30,6 +31,7 @@ class SineFunction {
 class CosineFunction {
 	template<class, class> friend class ::FunctionExpression;
 	template<class F> friend struct detail::derivate;
+	template<class T> friend struct detail::ContentPrinter;
 	class Derivative;
 
 	static constexpr const char* name = "cos";
@@ -42,18 +44,20 @@ class CosineFunction {
 class TangentFunction {
 	template<class, class> friend class ::FunctionExpression;
 	template<class F> friend struct detail::derivate;
+	template<class T> friend struct detail::ContentPrinter;
 	class Derivative;
 
 	static constexpr const char* name = "tan";
 
 	static inline constexpr double calculate(double x) {
-		return cos(x);
+		return tan(x);
 	}
 };
 
 class ArcusTangentFunction {
 	template<class, class> friend class ::FunctionExpression;
 	template<class F> friend struct detail::derivate;
+	template<class T> friend struct detail::ContentPrinter;
 	class Derivative;
 
 	static constexpr const char* name = "atan";
@@ -66,6 +70,7 @@ class ArcusTangentFunction {
 class NaturalLogarithmFunction {
 	template<class, class> friend class ::FunctionExpression;
 	template<class F> friend struct detail::derivate;
+	template<class T> friend struct detail::ContentPrinter;
 	class Derivative;
 
 	static constexpr const char* name = "ln";
@@ -133,24 +138,24 @@ struct detail::SineFunction::Derivative {
 struct detail::CosineFunction::Derivative {
 	template<class X>
 	static inline auto construct(const X& x)
-	-> decltype(Constant(0)-sine(x)) {
-		return Constant(0)-sine(x);
+	-> decltype(-sine(x)) {
+		return -sine(x);
 	}
 };
 
 struct detail::TangentFunction::Derivative {
 	template<class X>
 	static inline auto construct(const X& x)
-	-> decltype(Constant(1)/(cosine(x)*cosine(x))) {
-		return Constant(1)/(cosine(x)*cosine(x));
+	-> decltype(Constant(1)/(cosine(x)^2.0)) {
+		return Constant(1)/(cosine(x)^2.0);
 	}
 };
 
 struct detail::ArcusTangentFunction::Derivative {
 	template<class X>
 	static inline auto construct(const X& x)
-	-> decltype(Constant(1)/(x*x+Constant(1))) {
-		return Constant(1)/(x*x+Constant(1));
+	-> decltype(Constant(1)/((x^Constant(2.0))+Constant(1))) {
+		return Constant(1)/((x^Constant(2.0))+Constant(1));
 	}
 };
 

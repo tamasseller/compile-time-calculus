@@ -15,11 +15,27 @@
 template<char n>
 class Variable;
 class Constant;
+class Zero;
+class One;
 
 template<class Child>
 struct Operators {
-	inline BinaryOperationExpression<Constant, Child, BinaryOperation<BinaryOperationType::Sub>> operator -() const {
-		return BinaryOperationExpression<Constant, Child, BinaryOperation<BinaryOperationType::Sub>>(0, *static_cast<const Child*>(this));
+	inline BinaryOperationExpression<Zero, Child, BinaryOperation<BinaryOperationType::Sub>> operator -() const {
+		return BinaryOperationExpression<Zero, Child, BinaryOperation<BinaryOperationType::Sub>>(Zero(), *static_cast<const Child*>(this));
+	}
+
+	inline Child operator +(const Zero& other) const {
+		return *static_cast<const Child*>(this);
+	}
+
+	inline Child operator -(const Zero& other) const {
+		return *static_cast<const Child*>(this);
+	}
+
+	inline Zero operator *(const Zero& other) const;
+
+	inline Child operator *(const One& other) const {
+		return *static_cast<const Child*>(this);
 	}
 
 	template<class Other>
@@ -72,7 +88,6 @@ class Constant: public Operators<Constant> {
 	template<BinaryOperationType> friend struct BinaryOperation;
 	const double content;
 public:
-	static constexpr bool isConst = true;
 	static constexpr auto precedence = 0u;
 	typedef const Constant Handle;
 
@@ -118,6 +133,56 @@ public:
 	using Operators<Constant>::operator-;
 	using Operators<Constant>::operator/;
 	using Operators<Constant>::operator*;
+};
+
+struct Zero: Constant {
+	typedef const Zero Handle;
+	inline Zero(): Constant(0.0) {}
+
+	template<class Other>
+	inline Other operator +(const Other& other) const {
+		return other;
+	}
+
+	template<class Other>
+	inline Other operator -(const Other& other) const {
+		return -other;
+	}
+
+	inline Zero operator *(const Constant& other) const {
+		return Zero();
+	}
+
+	template<class Other>
+	inline Other operator /(const Other& other) const {
+		return Zero();
+	}
+
+	template<class Other>
+	inline Other operator ^(const Other& other) const {
+		return Zero();
+	}
+};
+
+
+template<class Child>
+inline Zero Operators<Child>::operator *(const Zero& other) const {
+	return Zero();
+}
+
+struct One: Constant {
+	typedef const One Handle;
+	inline One(): Constant(1.0) {}
+
+	template<class Other>
+	inline Other operator *(const Other& other) const {
+		return other;
+	}
+
+	template<class Other>
+	inline One operator ^(const Other& other) const {
+		return One();
+	}
 };
 
 template<char n>

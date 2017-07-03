@@ -16,19 +16,19 @@ template<class F> struct derivate {};
 
 template<char n> struct derivate<Variable<n>> {
 	template<char o>
-	static inline Constant d(const Variable<n>&, const Variable<o>&) {
-		return 0.0;
+	static inline Zero d(const Variable<n>&, const Variable<o>&) {
+		return Zero();
 	}
 
-	static inline Constant d(const Variable<n>&, const Variable<n>&) {
-		return 1.0;
+	static inline One d(const Variable<n>&, const Variable<n>&) {
+		return One();
 	}
 };
 
 template<> struct derivate<Constant> {
 	template<char n>
-	static inline Constant d(const Constant& f, const Variable<n>& x) {
-		return 0.0;
+	static inline Zero d(const Constant& f, const Variable<n>& x) {
+		return Zero();
 	}
 };
 
